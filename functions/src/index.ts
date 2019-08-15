@@ -19,3 +19,43 @@ exports.addMessage = functions.https.onRequest(async (req, res) => {
     res.redirect(303, snapshot.ref.toString());
   });
 
+
+  exports.userCreated = functions.auth.user().onCreate((user) => {
+    const db = admin.firestore();
+    const docReff = db.collection("users").doc(user.uid);
+    docReff.get().then(function (doc) {
+        if (!doc.exists) {
+            db.collection("emails").add({
+                uid: user.uid,
+                createdAt: admin.firestore.FieldValue.serverTimestamp()
+            })
+                .then(function (docRef) {
+                // Great.
+                console.log("Document written with ID: ", docRef.id);
+                // send email notificatiin.
+                // const mailOptions = {
+                //     from: `<noreply@trenday-pay.com>`,
+                //     to: user.email,
+                //     subject: "Welcome to Trendy-pal",
+                //     html: "hello world"
+                // };
+                //  mailTransport.sendMail(mailOptions);
+                return 1;
+            })
+                .catch(function (error) {
+                // why like this :(
+                console.error("Error adding document: ", error);
+                return 0;
+            });
+        }
+        else {
+            // doc.data() will be undefined in this case
+            console.log("Already Exist");
+            return 1;
+        }
+        return 3;
+    }).catch(function (error) {
+        console.log("Error getting document:", error);
+    });
+});
+
