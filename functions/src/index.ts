@@ -27,7 +27,9 @@ exports.addMessage = functions.https.onRequest(async (req, res) => {
         if (!doc.exists) {
             db.collection("emails").add({
                 uid: user.uid,
-                createdAt: admin.firestore.FieldValue.serverTimestamp()
+                createdAt: admin.firestore.FieldValue.serverTimestamp(),
+                email:user.email,
+                emailType:'welcome'
             })
                 .then(function (docRef) {
                 // Great.
@@ -40,22 +42,24 @@ exports.addMessage = functions.https.onRequest(async (req, res) => {
                 //     html: "hello world"
                 // };
                 //  mailTransport.sendMail(mailOptions);
-                return 1;
+                return null;
             })
                 .catch(function (error) {
                 // why like this :(
                 console.error("Error adding document: ", error);
-                return 0;
+                return null;
             });
+            return null;
         }
         else {
             // doc.data() will be undefined in this case
             console.log("Already Exist");
-            return 1;
+            return null;
         }
-        return 3;
     }).catch(function (error) {
         console.log("Error getting document:", error);
+        return null;
     });
+    return null;
 });
 
